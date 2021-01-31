@@ -20,17 +20,18 @@
  * Open file table structure
  */
 struct files_struct {
-        atomic_t count;
+        atomic_t count;		//共享该表的进程数目
         spinlock_t file_lock;     /* Protects all the below members.  Nests inside tsk->alloc_lock */
-        int max_fds;
-        int max_fdset;
-        int next_fd;
-        struct file ** fd;      /* current fd array */
-        fd_set *close_on_exec;
-        fd_set *open_fds;
-        fd_set close_on_exec_init;
-        fd_set open_fds_init;
-        struct file * fd_array[NR_OPEN_DEFAULT];
+	//用于表中字段的读/写自旋锁
+        int max_fds;		//文件对象的当前最大数目
+        int max_fdset;		//文件描述符的当前最大数目
+        int next_fd;		//所分配的最大文件描述符加1
+        struct file ** fd;      /* current fd array */	//指向文件对象指针数组的指针
+        fd_set *close_on_exec;		//指向执行exec()时需要关闭的文件描述符的指针
+        fd_set *open_fds;		//指向打开文件描述符的指针
+        fd_set close_on_exec_init;	//执行exec()时需要关闭的文件描述符的初始集合
+        fd_set open_fds_init;		//文件描述符的初始集合
+        struct file * fd_array[NR_OPEN_DEFAULT];	//文件对象指针的初始化数组
 };
 
 extern void FASTCALL(__fput(struct file *));
