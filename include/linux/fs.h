@@ -79,12 +79,12 @@ extern int dir_notify_enable;
 #define SEL_EX		4
 
 /* public flags for file_system_type */
-#define FS_REQUIRES_DEV 1 
-#define FS_BINARY_MOUNTDATA 2
-#define FS_REVAL_DOT	16384	/* Check the paths ".", ".." for staleness */
+#define FS_REQUIRES_DEV 1 			//这种类型的任何文件系统必须位于物理磁盘设备上
+#define FS_BINARY_MOUNTDATA 2			//这种文件系统使用的二进制安装数据
+#define FS_REVAL_DOT	16384	/* Check the paths ".", ".." for staleness */	//始终在目录项高速缓存中使用"."和".."路径重新生效（针对网络文件系统）
 #define FS_ODD_RENAME	32768	/* Temporary stuff; will go away as soon
 				  * as nfs_rename() will be cleaned up
-				  */
+				  */	//"重命名"操作就是"移动"操作（针对网络文件系统）
 /*
  * These are the fs-independent mount-flags: up to 32 flags are supported
  */
@@ -1231,14 +1231,14 @@ find_exported_dentry(struct super_block *sb, void *obj, void *parent,
 		     void *context);
 
 struct file_system_type {
-	const char *name;
-	int fs_flags;
+	const char *name;		//文件系统名
+	int fs_flags;			//文件系统类型标志
 	struct super_block *(*get_sb) (struct file_system_type *, int,
-				       const char *, void *);
-	void (*kill_sb) (struct super_block *);
-	struct module *owner;
-	struct file_system_type * next;
-	struct list_head fs_supers;
+				       const char *, void *);		//读超级块的方法
+	void (*kill_sb) (struct super_block *);				//删除超级块的方法
+	struct module *owner;						//指向实现文件系统的超级块的模块的指针
+	struct file_system_type * next;					//指向文件系统类型链表中下一个元素的指针
+	struct list_head fs_supers;					//具有相同文件系统类型的超级块对象链表的头
 };
 
 struct super_block *get_sb_bdev(struct file_system_type *fs_type,

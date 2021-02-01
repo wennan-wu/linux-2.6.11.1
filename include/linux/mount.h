@@ -16,26 +16,26 @@
 #include <linux/spinlock.h>
 #include <asm/atomic.h>
 
-#define MNT_NOSUID	1
-#define MNT_NODEV	2
-#define MNT_NOEXEC	4
+#define MNT_NOSUID	1		//在已安装文件系统中禁止setuid和setgid标志
+#define MNT_NODEV	2		//在已安装文件系统中禁止访问设备文件
+#define MNT_NOEXEC	4		//在已安装文件系统中不允许程序执行
 
 struct vfsmount
 {
-	struct list_head mnt_hash;
-	struct vfsmount *mnt_parent;	/* fs we are mounted on */
-	struct dentry *mnt_mountpoint;	/* dentry of mountpoint */
-	struct dentry *mnt_root;	/* root of the mounted tree */
-	struct super_block *mnt_sb;	/* pointer to superblock */
-	struct list_head mnt_mounts;	/* list of children, anchored here */
-	struct list_head mnt_child;	/* and going through their mnt_child */
-	atomic_t mnt_count;
-	int mnt_flags;
-	int mnt_expiry_mark;		/* true if marked for expiry */
-	char *mnt_devname;		/* Name of device e.g. /dev/dsk/hda1 */
-	struct list_head mnt_list;
-	struct list_head mnt_fslink;	/* link in fs-specific expiry list */
-	struct namespace *mnt_namespace; /* containing namespace */
+	struct list_head mnt_hash;	//用于散列表链表的指针
+	struct vfsmount *mnt_parent;	/* fs we are mounted on */	//指向父文件系统，这个文件系统安装在其上
+	struct dentry *mnt_mountpoint;	/* dentry of mountpoint */	//指向这个文件系统安装点目录的dentry
+	struct dentry *mnt_root;	/* root of the mounted tree */	//指向这个文件系统根目录的dentry
+	struct super_block *mnt_sb;	/* pointer to superblock */	//指向这个文件系统的超级块对象
+	struct list_head mnt_mounts;	/* list of children, anchored here */	//包含所有文件系统描述符链表的头（相对于这个文件系统）
+	struct list_head mnt_child;	/* and going through their mnt_child */	//用于已安装文件系统链表mnt_mounts的指针
+	atomic_t mnt_count;		//引用计数器（增加该值以禁止文件系统被卸载）
+	int mnt_flags;			//标志
+	int mnt_expiry_mark;		/* true if marked for expiry */	//如果文件系统被标记为到期，那么就设置该标志为true（如果设置了该标志，并且没有任何人使用它，那么就可以自动卸载这个文件系统）
+	char *mnt_devname;		/* Name of device e.g. /dev/dsk/hda1 */		//设备文件名
+	struct list_head mnt_list;				//已安装文件系统描述符的namespace链表的指针
+	struct list_head mnt_fslink;	/* link in fs-specific expiry list */	//具体文件系统到期链表的指针
+	struct namespace *mnt_namespace; /* containing namespace */	//指向安装了文件系统的进程命名空间的指针
 };
 
 static inline struct vfsmount *mntget(struct vfsmount *mnt)
